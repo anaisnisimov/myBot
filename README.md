@@ -1,1 +1,1 @@
-# myBot
+# myDiscordBot 
