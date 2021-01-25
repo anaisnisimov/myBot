@@ -1,25 +1,36 @@
 const Discord = require('discord.js');
-const bot = new Discord.Client();
+const client = new Discord.Client();
+const prefix='!';
+const {TOKEN} = require('./configs');
+//creation d'une collection de command pour le bot discord
+const fs = require('fs');
+client.commands = new Discord.Collection();
 
-const token = 'NjI5MzUxODM1MjE5NjU2NzU0.XZYfkg.Z0C8V1941SwaTUOE1Xdnspeu4GQ';
+// on filtre pour s'assurer qu'on va chercher nos collections de commandes dans des fichiers js
+const commandFiles = fs.readdirSync('./commands/').filter(file => file.endsWith('.js'));
+for (const file of commandFiles){
+    const command = require(`./commands/${file}`);
+    client.commands.set(command.name, command);
+}
+
+
 // check if bot is ready to be a bot
-bot.on('ready', () => {
+client.once('ready', () => {
     console.log('this bot is alive')
 });
 
 // bot send a message
-bot.on('message', msg => {
-if(msg.content === "hello you"){
-    //bot reply to message
-    msg.reply('hello friend');
-}
-});
-// bot send a message
-bot.on('message', msg => {
-    if (msg.content === "ping") {
-        //bot reply to message
-        msg.reply('pong');
+client.on('message', message => {
+  if(!message.content.startsWith(prefix) || message.author.bot) return;
+        const args = message.content.slice(prefix.length).split(/ +/);
+    const command= args.shift().toLowerCase();
+    if(command === 'ping'){
+        client.commands.get('ping').execute(message,args);
+    }
+     if(command === 'whoareyou'){
+         client.commands.get('wikipedia').execute(message, args);
     }
 });
+
 //login my bot
-bot.login(token);
+client.login(TOKEN);
